@@ -8,38 +8,38 @@ require_relative './model.rb'
 enable :sessions
 
 get('/') do
-    slim(:register)
+  slim(:register)
 end
   
 get('/showlogin') do
-    slim(:login)
+  slim(:login)
 end
   
 post('/login') do
-    username = params[:username]
-    password = params[:password]
-    email = params[:email]
-    db = SQLite3::Database.new("db/databas.db")
-    db.results_as_hash = true
-    result = db.execute("SELECT * FROM users WHERE username = ?",username).first
-    pwdigest = result["pwdigest"]
-    id = result["id"]
-    if BCrypt::Password.new(pwdigest) == password
-      session[:id] = id
-      redirect('/todos')
-    else
-      "fel lösenord"
-    end
+  username = params[:username]
+  password = params[:password]
+  email = params[:email]
+  db = SQLite3::Database.new("db/databas.db")
+  db.results_as_hash = true
+  result = db.execute("SELECT * FROM users WHERE username = ?",username).first
+  pwdigest = result["pwdigest"]
+  id = result["id"]
+  if BCrypt::Password.new(pwdigest) == password
+    session[:id] = id
+    redirect('/todos')
+  else
+    "fel lösenord"
+  end
   
 end
 
 get('/todos') do 
-    
+  slim(:index)
 end
 
 
 get('/showlogout') do 
-    slim(:logout)
+  slim(:logout)
 end
 
 post("/users/new") do
@@ -55,7 +55,7 @@ post("/users/new") do
     redirect('/')
 
   else
-    "fel lösenord"
+    "lösenorden matchade inte"
     
   end
 end
