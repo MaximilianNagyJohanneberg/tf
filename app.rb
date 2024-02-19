@@ -33,10 +33,6 @@ post('/login') do
   
 end
 
-get('/todos') do 
-  slim(:index)
-end
-
 
 get('/showlogout') do 
   slim(:logout)
@@ -58,4 +54,20 @@ post("/users/new") do
     "lösenorden matchade inte"
     
   end
+end
+
+get('/todos') do 
+  slim(:"todos/write")
+end
+
+post('/todos/write') do
+  title = params[:title]
+  content = params[:content]
+  db = SQLite3::Database.new("db/databas.db")
+  db.execute("INSERT INTO posts (Title, content) VALUES (?,?)",title, content)
+  redirect('/read')
+end
+
+get('/read') do 
+  slim(:"read/read")
 end
