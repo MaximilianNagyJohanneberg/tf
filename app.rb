@@ -57,17 +57,17 @@ post("/users/new") do
 end
 
 get('/todos') do 
-  slim(:"todos/write")
+  slim(:"todos/new")
 end
 
-post('/todos/write') do
+post('/upload') do
   title = params[:title]
   content = params[:content]
   db = SQLite3::Database.new("db/databas.db")
-  db.execute("INSERT INTO posts (Title, content) VALUES (?,?)",title, content)
+  db.execute("INSERT INTO posts (title,content) VALUES (?,?)",title,content)
   redirect('/read')
 end
 
 get('/read') do 
-  slim(:"read/read")
+  slim(:"read/index")
 end
