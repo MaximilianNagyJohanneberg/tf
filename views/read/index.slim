@@ -1,0 +1,13 @@
+h1 All Albums
+
+
+ol
+  - results.each do |result |
+    div
+        h2 #{result["title"]}
+        p #{result["content"]}
+
+    /   a href="albums/#{album['AlbumId']}" #{album["Title"]}
+    /   a href="albums/#{album['AlbumId']}/edit" Uppdatera
+    /   form action="albums/#{album['AlbumId']}/delete" method="post" 
+    /     input type="submit" value="Delete" 

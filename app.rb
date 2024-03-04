@@ -69,5 +69,9 @@ post('/upload') do
 end
 
 get('/read') do 
-  slim(:"read/index")
+  db = SQLite3::Database.new("db/databas.db")
+  db.results_as_hash = true
+  results= db.execute("SELECT * FROM posts")
+  slim(:"read/index",locals:{results:results})
 end
+
