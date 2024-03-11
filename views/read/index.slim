@@ -1,11 +1,12 @@
-h1 All Albums
-
+h1 All posts
 
 ol
-  - results.each do |result |
-    div
-        h2 #{result["title"]}
-        h3 #{result["content"]}
+  - results.each do |result|
+    div.each_post
+      h2.post_h2 = result["title"]
+      h3.post_h3 = result["content"]
+      p.post_user = "posted by: #{result["username"]}"
+
 
     /   a href="albums/#{album['AlbumId']}" #{album["Title"]}
     /   a href="albums/#{album['AlbumId']}/edit" Uppdatera

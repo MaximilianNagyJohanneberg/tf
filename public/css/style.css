@@ -282,3 +282,26 @@ header {
 .btn-read:hover {
   background-color: #f0f0f0;
 }
+
+.each_post {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  padding: 10px;
+}
+
+.post_h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.post_h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.post_user {
+  font-size: 14px;
+  color: #888;
+}
