@@ -49,7 +49,6 @@ post("/users/new") do
     db = SQLite3::Database.new('db/databas.db')
     db.execute("INSERT INTO users (username,pwdigest,email) VALUES(?,?,?)",username,pwdigest,email)
     redirect('/')
-
   else
     "lösenorden matchade inte"
     
@@ -75,3 +74,9 @@ get('/read') do
   slim(:"read/index",locals:{results:results})
 end
 
+post('/read/:id/delete') do
+  id = params[:id].to_i
+  db = SQLite3::Database.new("db/databas.db")
+  db.execute("DELETE FROM posts WHERE id = ?",id)
+  redirect('/read')
+end
