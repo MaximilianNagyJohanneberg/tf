@@ -26,13 +26,13 @@ post('/login') do
   id = result["id"]
   if BCrypt::Password.new(pwdigest) == password
     session[:id] = id
+    session[:result] = result  # Lagra result i sessionen
     redirect('/todos')
   else
     "fel lösenord"
   end
   
 end
-
 
 get('/showlogout') do 
   slim(:logout)
@@ -48,7 +48,7 @@ post("/users/new") do
     pwdigest= BCrypt::Password.create(password)
     db = SQLite3::Database.new('db/databas.db')
     db.execute("INSERT INTO users (username,pwdigest,email) VALUES(?,?,?)",username,pwdigest,email)
-    redirect('/')
+    redirect('/showlogin')
   else
     "lösenorden matchade inte"
     
@@ -76,7 +76,14 @@ end
 
 post('/read/:id/delete') do
   id = params[:id].to_i
+  user_id = session[:id]
   db = SQLite3::Database.new("db/databas.db")
-  db.execute("DELETE FROM posts WHERE id = ?",id)
+  # Kolla om användaren har rätt att ta bort inlägget
+  result = db.execute("SELECT * FROM posts_and_user WHERE user_id = ? AND post_id = ?", user_id, id).first
+  if result
+    db.execute("DELETE FROM posts WHERE id = ?", id)
+  else 
+    "Du har inte rättighet att radera detta inlägg"
+  end
   redirect('/read')
 end
