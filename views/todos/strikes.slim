@@ -1,0 +1,9 @@
+div class="form-box read-blog"
+  h2 Försök igen
+  p Fel lösenord 
+  p Du har #{3-@login_attempts} försök kvar
+  - if @login_attempts == 3
+    - showButton = true
+  - else
+    - showButton = false
+  a href="/showlogin" class="btn-read hidden" id="loginButton" försök igen" style="display: #{showButton ? 'inline-block' : 'none'}"

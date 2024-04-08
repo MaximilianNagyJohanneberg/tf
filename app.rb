@@ -7,12 +7,19 @@ require_relative './model.rb'
 
 enable :sessions
 
+$login_attempts = 0
+
 get('/') do
   slim(:register)
 end
   
 get('/showlogin') do
   slim(:login)
+end
+
+get('/strikes') do
+  @login_attempts = $login_attempts  # Skicka antalet login_attempts till slim-filen
+  slim(:"todos/strikes")
 end
   
 post('/login') do
@@ -26,12 +33,15 @@ post('/login') do
   id = result["id"]
   if BCrypt::Password.new(pwdigest) == password
     session[:id] = id
-    session[:result] = result  # Lagra result i sessionen
+    session[:result] = result
     redirect('/todos')
   else
-    "fel lösenord"
+    $login_attempts += 1
+    if $login_attempts == 3
+      $login_attempts = 0 
+    end
+    redirect('/strikes')
   end
-  
 end
 
 get('/showlogout') do 
