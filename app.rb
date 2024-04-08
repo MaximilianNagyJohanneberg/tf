@@ -33,7 +33,7 @@ post('/login') do
   id = result["id"]
   if BCrypt::Password.new(pwdigest) == password
     session[:id] = id
-    session[:result] = result
+    session[:username] = username
     redirect('/todos')
   else
     $login_attempts += 1
@@ -72,17 +72,24 @@ end
 post('/upload') do
   title = params[:title]
   content = params[:content]
+  user_id = session[:id]
   db = SQLite3::Database.new("db/databas.db")
-  db.execute("INSERT INTO posts (title,content) VALUES (?,?)",title,content)
+  db.execute("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", user_id, title, content)
   redirect('/read')
 end
+
 
 get('/read') do 
   db = SQLite3::Database.new("db/databas.db")
   db.results_as_hash = true
-  results = db.execute("SELECT * FROM posts")
+  results = db.execute("
+    SELECT posts.*, users.username 
+    FROM posts 
+    JOIN users ON posts.user_id = users.id
+  ")
   slim(:"read/index", locals: { results: results })
 end
+
 
 post('/read/:id/delete') do
   id = params[:id].to_i
