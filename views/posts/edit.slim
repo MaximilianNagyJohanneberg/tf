@@ -1,0 +1,5 @@
+form action="/posts/#{results['id']}/update" method="post" 
+    input type="text" name="title" value="#{results['title']}"
+    input type="text" name="content" value="#{results['content']}"
+    input type="hidden" name="id" value="#{results['id']}"
+    input type="submit" value="Edit it!" 

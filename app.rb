@@ -19,7 +19,7 @@ end
 
 get('/strikes') do
   @login_attempts = $login_attempts  # Skicka antalet login_attempts till slim-filen
-  slim(:"todos/strikes")
+  slim(:strikes)
 end
   
 post('/login') do
@@ -34,7 +34,7 @@ post('/login') do
   if BCrypt::Password.new(pwdigest) == password
     session[:id] = id
     session[:username] = username
-    redirect('/todos')
+    redirect('/posts')
   else
     $login_attempts += 1
     if $login_attempts == 3
@@ -65,21 +65,21 @@ post("/users/new") do
   end
 end
 
-get('/todos') do 
-  slim(:"todos/new")
+get('/posts') do 
+  slim(:"posts/new")
 end
 
-post('/upload') do
+post('/posts/new') do
   title = params[:title]
   content = params[:content]
   user_id = session[:id]
   db = SQLite3::Database.new("db/databas.db")
   db.execute("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", user_id, title, content)
-  redirect('/read')
+  redirect('/posts/')
 end
 
 
-get('/read') do 
+get('/posts/') do 
   db = SQLite3::Database.new("db/databas.db")
   db.results_as_hash = true
   results = db.execute("
@@ -87,20 +87,46 @@ get('/read') do
     FROM posts 
     JOIN users ON posts.user_id = users.id
   ")
-  slim(:"read/index", locals: { results: results })
+  slim(:"posts/index", locals: { results: results })
 end
 
 
-post('/read/:id/delete') do
+post('/posts/:id/delete') do
   id = params[:id].to_i
   user_id = session[:id]
   db = SQLite3::Database.new("db/databas.db")
-  # Kolla om användaren har rätt att ta bort inlägget
-  result = db.execute("SELECT * FROM posts_and_user WHERE user_id = ? AND post_id = ?", user_id, id).first
-  if result
+  user_post_id = db.execute("SELECT id FROM posts WHERE id = ? AND user_id = ?", id, user_id).first
+  if user_post_id
     db.execute("DELETE FROM posts WHERE id = ?", id)
   else 
-    "Du har inte rättighet att radera detta inlägg"
+    halt "Du har inte rättighet att radera detta inlägg"
   end
-  redirect('/read')
+  redirect('/posts')
 end
+
+post('/posts/:id/update') do
+  id = params[:id].to_i
+  title = params[:title]
+  content = params[:content]
+  db = SQLite3::Database.new("db/databas.db")
+  db.execute("UPDATE posts SET title = ?, content = ? WHERE id = ?",title,content,id)
+  redirect('/posts/')
+end
+
+get('/posts/:id/edit') do
+  id = params[:id].to_i
+  user_id = session[:id]
+  db = SQLite3::Database.new("db/databas.db")
+  db.results_as_hash = true
+  results = db.execute("SELECT * FROM posts WHERE id = ?",id).first
+  user_post_id = db.execute("SELECT user_id FROM posts WHERE id = ? AND user_id = ?", id, user_id).first
+  if user_post_id.nil? || user_id != user_post_id["user_id"]
+    halt "Du har inte rättighet att ändra detta inlägg"
+  else
+    slim(:"/posts/edit", locals:{results:results})
+  end
+end
+
+
+
+

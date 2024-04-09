@@ -6,5 +6,6 @@ ol
       h2.post_h2 = result["title"]
       h3.post_h3 = result["content"]
       p.post_user = "posted by: #{result["username"]}"
-      form action="read/#{result['id']}/delete" method="post" 
-        input type="submit" value="Delete"
+      a href="/posts/#{result['id']}/edit" Uppdatera
+      form action="/posts/#{result['id']}/delete" method="post" 
+        input type="submit" value="Delete" name="id"
