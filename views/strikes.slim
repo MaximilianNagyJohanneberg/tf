@@ -1,9 +1,25 @@
-div class="form-box read-blog"
+div.form-box.read-blog
   h2 Försök igen
   p Fel lösenord 
   p Du har #{3-@login_attempts} försök kvar
-  - if @login_attempts == 3
-    - showButton = true
+  - if @login_attempts >= 3
+    p.notice = flash[:notice]
   - else
-    - showButton = false
+    - showButton = true
   a href="/showlogin" class="btn-read hidden" id="loginButton" försök igen" style="display: #{showButton ? 'inline-block' : 'none'}"
+
+javascript:
+  document.addEventListener("DOMContentLoaded", function() {
+    var loginAttempts = #{@login_attempts};
+    var loginButton = document.getElementById('loginButton');
+    var strikesMessage = document.querySelector('.notice');
+
+    if (loginAttempts >= 3 && strikesMessage) {
+      loginButton.style.display = 'none'; // Dölj knappen vid 3 eller fler felaktiga försök
+      strikesMessage.style.display = 'block'; // Visa meddelandet om det finns
+      setTimeout(function() {
+        strikesMessage.style.display = 'none'; // Dölj meddelandet efter 5 sekunder
+        loginButton.style.display = 'inline-block'; // Visa knappen igen
+      }, 5000);
+    }
+  });

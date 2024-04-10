@@ -4,6 +4,7 @@ require 'slim'
 require 'sqlite3'
 require 'bcrypt'
 require_relative './model.rb'
+require 'sinatra/flash'
 
 enable :sessions
 
@@ -19,6 +20,7 @@ end
 
 get('/strikes') do
   @login_attempts = $login_attempts  # Skicka antalet login_attempts till slim-filen
+  flash[:notice] = "You have no more attempts left, wait a bit and try again!"
   slim(:strikes)
 end
   
@@ -37,10 +39,10 @@ post('/login') do
     redirect('/posts')
   else
     $login_attempts += 1
-    if $login_attempts == 3
-      $login_attempts = 0 
+    if $login_attempts >= 3 
+      redirect('/strikes') 
     end
-    redirect('/strikes')
+    redirect('/strikes') 
   end
 end
 
