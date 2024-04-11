@@ -6,6 +6,10 @@ ol
       h2.post_h2 = result["title"]
       h3.post_h3 = result["content"]
       p.post_user = "posted by: #{result["username"]}"
+      form.like_form action="/posts/#{result['id']}/like" method="post"
+        button.like_button type="submit" Gilla
+      form.unlike_form action="/posts/#{result['id']}/unlike" method="post"
+        button.unlike_button type="submit" Ogilla
       a href="/posts/#{result['id']}/edit" Uppdatera
       form action="/posts/#{result['id']}/delete" method="post" 
         input type="submit" value="Delete" name="id"
