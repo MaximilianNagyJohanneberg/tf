@@ -9,6 +9,14 @@ require 'sinatra/flash'
 
 enable :sessions
 
+before '/posts/*' do
+  unless session[:id]
+    flash[:notice] = "Du måste vara inloggad för att komma åt den här sidan."
+    redirect '/showlogin'
+  end
+end
+
+
 $login_attempts = 0
 
 def connect_to_db(path)
@@ -43,7 +51,7 @@ post('/login') do
   if BCrypt::Password.new(pwdigest) == password
     session[:id] = id
     session[:username] = username
-    redirect('/posts')
+    redirect('/posts/new')
   else
     $login_attempts += 1
     if $login_attempts >= 3
@@ -59,31 +67,32 @@ get('/showlogout') do
 end
 
 
-post("/users/new") do
- username = params[:username]
- password = params[:password]
- email = params[:email]
- password_confirm = params[:password_comfirm]
+post("/users") do
+  username = params[:username]
+  password = params[:password]
+  email = params[:email]
+  password_confirm = params[:password_comfirm]
 
-
-  if (password == password_confirm)
-    pwdigest= BCrypt::Password.create(password)
+  if username.empty? || password.empty? || email.empty? || password_confirm.empty?
+    return "Fyll i alla fält."
+  elsif password != password_confirm
+    return "Lösenorden matchade inte."
+  else
+    pwdigest = BCrypt::Password.create(password)
     db = connect_to_db('db/databas.db')
     db.execute("INSERT INTO users (username,pwdigest,email) VALUES(?,?,?)",username,pwdigest,email)
     redirect('/showlogin')
-  else
-    "lösenorden matchade inte"
-   
   end
 end
 
 
-get('/posts') do
+
+get('/posts/new') do
   slim(:"posts/new")
 end
 
 
-post('/posts/new') do
+post('/posts') do
   title = params[:title]
   content = params[:content]
   user_id = session[:id]
@@ -91,9 +100,6 @@ post('/posts/new') do
   db.execute("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", user_id, title, content)
   redirect('/posts/')
 end
-
-
-
 
 get('/posts/') do
   db = connect_to_db('db/databas.db')
@@ -114,7 +120,7 @@ post('/posts/:id/delete') do
   else
     halt "Du har inte rättighet att radera detta inlägg"
   end
-  redirect('/posts')
+  redirect('/posts/new')
 end
 
 

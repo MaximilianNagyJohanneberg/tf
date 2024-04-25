@@ -1,23 +1,23 @@
 div class="wrapper"
     div class="form-box register"
         h2 Registration
-        form action="users/new" method="post" 
+        form action="/users" method="post" 
             div class="input-box"
                 span class="icon"
                     <ion-icon name="mail"></ion-icon>
-                input type="email" name="email" 
+                input type="email" name="email" required 
                 label Email 
 
             div class="input-box"
                 span class="icon"
                     <ion-icon name="person"></ion-icon>
-                input type="text" name="username" 
+                input type="text" name="username" required
                 label Username    
                 
             div class="input-box"
                 span class="icon"
                     <ion-icon name="lock-closed"></ion-icon>
-                input type="password" name="password" 
+                input type="password" name="password" required
                 label Password
 
             div class="remember-forgot" 
@@ -27,7 +27,7 @@ div class="wrapper"
             div class="input-box"
                 span class="icon"
                     <ion-icon name="lock-closed"></ion-icon>
-                input type="password" name="password_comfirm" 
+                input type="password" name="password_comfirm" required
                 label Confirm password
             
                 
