@@ -62,11 +62,6 @@ post('/login') do
 end
 
 
-get('/showlogout') do
-  slim(:logout)
-end
-
-
 post("/users") do
   username = params[:username]
   password = params[:password]
@@ -78,19 +73,28 @@ post("/users") do
   elsif password != password_confirm
     return "Lösenorden matchade inte."
   else
-    pwdigest = BCrypt::Password.create(password)
     db = connect_to_db('db/databas.db')
-    db.execute("INSERT INTO users (username,pwdigest,email) VALUES(?,?,?)",username,pwdigest,email)
+  
+    if db.execute("SELECT id FROM users WHERE username = ?", username).any?
+      return "Användarnamnet är redan taget."
+    end
+
+    if db.execute("SELECT id FROM users WHERE email = ?", email).any?
+      return "E-postadressen är redan registrerad."
+    end
+
+    pwdigest = BCrypt::Password.create(password)
+    db.execute("INSERT INTO users (username,pwdigest,email) VALUES(?,?,?)", username, pwdigest, email)
     redirect('/showlogin')
   end
 end
 
 
 
+
 get('/posts/new') do
   slim(:"posts/new")
 end
-
 
 post('/posts') do
   title = params[:title]
