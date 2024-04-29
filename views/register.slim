@@ -5,19 +5,19 @@ div class="wrapper"
             div class="input-box"
                 span class="icon"
                     <ion-icon name="mail"></ion-icon>
-                input type="email" name="email" required 
+                input type="email" name="email"
                 label Email 
 
             div class="input-box"
                 span class="icon"
                     <ion-icon name="person"></ion-icon>
-                input type="text" name="username" required
+                input type="text" name="username"
                 label Username    
                 
             div class="input-box"
                 span class="icon"
                     <ion-icon name="lock-closed"></ion-icon>
-                input type="password" name="password" required
+                input type="password" name="password"
                 label Password
 
             div class="remember-forgot" 
@@ -27,7 +27,7 @@ div class="wrapper"
             div class="input-box"
                 span class="icon"
                     <ion-icon name="lock-closed"></ion-icon>
-                input type="password" name="password_comfirm" required
+                input type="password" name="password_comfirm"
                 label Confirm password
             
                 
@@ -39,3 +39,12 @@ div class="wrapper"
             div class="login-register"
                 p If you already have an account, click on login down below? 
                 a href="/showlogin" class="register-link" id="register-link" Login
+                
+                - if flash[:notice]
+                    p.notice = flash[:notice]
+
+                javascript:
+                    setTimeout(function() {
+                    document.querySelector('.notice').style.display = 'none';
+                    }, 2000);
+

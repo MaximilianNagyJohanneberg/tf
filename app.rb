@@ -30,6 +30,7 @@ get('/') do
 end
  
 get('/showlogin') do
+  session[:id] = nil
   slim(:login)
 end
 
@@ -69,18 +70,22 @@ post("/users") do
   password_confirm = params[:password_comfirm]
 
   if username.empty? || password.empty? || email.empty? || password_confirm.empty?
-    return "Fyll i alla fält."
+    flash[:notice] = "You must fill in all fields"
+    redirect('/')
   elsif password != password_confirm
-    return "Lösenorden matchade inte."
+    flash[:notice] = "Your password inputs were not identicall"
+    redirect('/')
   else
     db = connect_to_db('db/databas.db')
   
     if db.execute("SELECT id FROM users WHERE username = ?", username).any?
-      return "Användarnamnet är redan taget."
+      flash[:notice] = "This username is already in use"
+    redirect('/')
     end
 
     if db.execute("SELECT id FROM users WHERE email = ?", email).any?
-      return "E-postadressen är redan registrerad."
+      flash[:notice] = "This email is already in use"
+      redirect('/')
     end
 
     pwdigest = BCrypt::Password.create(password)
@@ -88,9 +93,6 @@ post("/users") do
     redirect('/showlogin')
   end
 end
-
-
-
 
 get('/posts/new') do
   slim(:"posts/new")
