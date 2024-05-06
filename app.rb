@@ -7,7 +7,10 @@ require_relative './model.rb'
 require 'sinatra/flash'
 
 
+
+
 enable :sessions
+
 
 before '/posts/*' do
   unless session[:id]
@@ -16,8 +19,8 @@ before '/posts/*' do
   end
 end
 
-
 $login_attempts = 0
+
 
 def connect_to_db(path)
   db = SQLite3::Database.new("db/databas.db")
@@ -63,11 +66,14 @@ post('/login') do
 end
 
 
+
+
 post("/users") do
   username = params[:username]
   password = params[:password]
   email = params[:email]
   password_confirm = params[:password_comfirm]
+
 
   if username.empty? || password.empty? || email.empty? || password_confirm.empty?
     flash[:notice] = "You must fill in all fields"
@@ -77,16 +83,18 @@ post("/users") do
     redirect('/')
   else
     db = connect_to_db('db/databas.db')
-  
+ 
     if db.execute("SELECT id FROM users WHERE username = ?", username).any?
       flash[:notice] = "This username is already in use"
     redirect('/')
     end
 
+
     if db.execute("SELECT id FROM users WHERE email = ?", email).any?
       flash[:notice] = "This email is already in use"
       redirect('/')
     end
+
 
     pwdigest = BCrypt::Password.create(password)
     db.execute("INSERT INTO users (username,pwdigest,email) VALUES(?,?,?)", username, pwdigest, email)
@@ -94,9 +102,11 @@ post("/users") do
   end
 end
 
+
 get('/posts/new') do
   slim(:"posts/new")
 end
+
 
 post('/posts') do
   title = params[:title]
@@ -107,6 +117,7 @@ post('/posts') do
   redirect('/posts/')
 end
 
+
 get('/posts/') do
   db = connect_to_db('db/databas.db')
   results = db.execute("
@@ -116,6 +127,7 @@ get('/posts/') do
   ")
   slim(:"posts/index", locals: { results: results })
 end
+
 
 post('/posts/:id/delete') do
   id = params[:id].to_i
@@ -130,6 +142,8 @@ post('/posts/:id/delete') do
 end
 
 
+
+
 post('/posts/:id/update') do
   id = params[:id].to_i
   title = params[:title]
@@ -138,6 +152,8 @@ post('/posts/:id/update') do
   db.execute("UPDATE posts SET title = ?, content = ? WHERE id = ?",title,content,id)
   redirect('/posts/')
 end
+
+
 
 
 get('/posts/:id/edit') do
@@ -152,6 +168,8 @@ get('/posts/:id/edit') do
     slim(:"/posts/edit", locals:{results:results})
   end
 end
+
+
 
 
 post('/posts/:id/like') do
@@ -170,6 +188,8 @@ post('/posts/:id/like') do
  
   redirect('/posts/')
 end
+
+
 
 
 post('/posts/:id/unlike') do
