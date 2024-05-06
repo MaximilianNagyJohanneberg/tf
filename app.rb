@@ -75,7 +75,7 @@ post("/users") do
   password_confirm = params[:password_comfirm]
 
 
-  if username.empty? || password.empty? || email.empty? || password_confirm.empty?
+  if username==nil || password=nil || email==nil || password_confirm==nil
     flash[:notice] = "You must fill in all fields"
     redirect('/')
   elsif password != password_confirm
@@ -86,7 +86,7 @@ post("/users") do
  
     if db.execute("SELECT id FROM users WHERE username = ?", username).any?
       flash[:notice] = "This username is already in use"
-    redirect('/')
+      redirect('/')
     end
 
 
