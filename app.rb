@@ -3,7 +3,7 @@ require 'sinatra/reloader'
 require 'slim'
 require 'sqlite3'
 require 'bcrypt'
-require_relative './model.rb'
+require_relative 'model.rb'
 require 'sinatra/flash'
 
 
@@ -74,30 +74,11 @@ post("/users") do
   password = params[:password]
   email = params[:email]
   password_confirm = params[:password_confirm]
-
-  if params[:email].empty? || params[:username].empty? || params[:password].empty? || params[:password_confirm].empty?
-    flash[:notice] = "You must fill in all fields"
-    redirect('/')
-  elsif password != password_confirm
-    flash[:notice] = "Your password inputs were not identicall"
-    redirect('/')
-    
-  else
-    db = connect_to_db('db/databas.db')
-
-    if db.execute("SELECT id FROM users WHERE username = ?", username).any?
-      flash[:notice] = "This username is already in use"
-    redirect('/')
-    end
-
-    if db.execute("SELECT id FROM users WHERE email = ?", email).any?
-      flash[:notice] = "This email is already in use"
-      redirect('/')
-    end
-
-    pwdigest = BCrypt::Password.create(password)
-    db.execute("INSERT INTO users (username,pwdigest,email) VALUES(?,?,?)", username, pwdigest, email)
+  if register(username,password,email,password_confirm) == true
     redirect('/showlogin')
+  else
+    flash[:notice] = register(username,password,email,password_confirm)
+    redirect('/')
   end
 end
 
