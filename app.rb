@@ -29,6 +29,7 @@ def connect_to_db(path)
 end
  
 get('/') do
+  session[:id] = nil
   slim(:register)
 end
  
@@ -72,29 +73,27 @@ post("/users") do
   username = params[:username]
   password = params[:password]
   email = params[:email]
-  password_confirm = params[:password_comfirm]
+  password_confirm = params[:password_confirm]
 
-
-  if username==nil || password=nil || email==nil || password_confirm==nil
+  if params[:email].empty? || params[:username].empty? || params[:password].empty? || params[:password_confirm].empty?
     flash[:notice] = "You must fill in all fields"
     redirect('/')
   elsif password != password_confirm
     flash[:notice] = "Your password inputs were not identicall"
     redirect('/')
+    
   else
     db = connect_to_db('db/databas.db')
- 
+
     if db.execute("SELECT id FROM users WHERE username = ?", username).any?
       flash[:notice] = "This username is already in use"
-      redirect('/')
+    redirect('/')
     end
-
 
     if db.execute("SELECT id FROM users WHERE email = ?", email).any?
       flash[:notice] = "This email is already in use"
       redirect('/')
     end
-
 
     pwdigest = BCrypt::Password.create(password)
     db.execute("INSERT INTO users (username,pwdigest,email) VALUES(?,?,?)", username, pwdigest, email)
