@@ -21,14 +21,9 @@ end
 
 $login_attempts = 0
 
-
-def connect_to_db(path)
-  db = SQLite3::Database.new("db/databas.db")
-  db.results_as_hash = true
-  return db
-end
  
 get('/') do
+  $login_attempts = 0
   session[:id] = nil
   slim(:register)
 end
@@ -49,22 +44,18 @@ post('/login') do
   username = params[:username]
   password = params[:password]
   email = params[:email]
-  db = connect_to_db('db/databas.db')
-  result = db.execute("SELECT * FROM users WHERE username = ?",username).first
-  pwdigest = result["pwdigest"]
-  id = result["id"]
-  if BCrypt::Password.new(pwdigest) == password
-    session[:id] = id
-    session[:username] = username
+  
+  login_result = login_user(username, email, password)
+
+  if login_result[:success] == true
+    session[:id] = login_result[:id]
+    session[:username] = login_result[:username]
     redirect('/posts/new')
   else
-    $login_attempts += 1
-    if $login_attempts >= 3
-      redirect('/strikes')
-    end
     redirect('/strikes')
   end
 end
+
 
 
 
@@ -74,13 +65,17 @@ post("/users") do
   password = params[:password]
   email = params[:email]
   password_confirm = params[:password_confirm]
-  if register(username,password,email,password_confirm) == true
+  
+  registration_result = register_user(username, email, password, password_confirm)
+  
+  if registration_result == true
     redirect('/showlogin')
   else
-    flash[:notice] = register(username,password,email,password_confirm)
+    flash[:notice] = registration_result
     redirect('/')
   end
 end
+
 
 
 get('/posts/new') do
