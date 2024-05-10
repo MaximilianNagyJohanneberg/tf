@@ -7,11 +7,12 @@ require_relative 'model.rb'
 require 'sinatra/flash'
 
 
-
-
 enable :sessions
 
+include Model 
 
+# Checks if session[:id] is equal to nil
+#
 before '/posts/*' do
   unless session[:id]
     flash[:notice] = "Du måste vara inloggad för att komma åt den här sidan."
@@ -21,25 +22,37 @@ end
 
 $login_attempts = 0
 
- 
+# Display register form
+#
 get('/') do
   $login_attempts = 0
   session[:id] = nil
   slim(:register)
 end
  
+#Display login form
+#
 get('/showlogin') do
   session[:id] = nil
   slim(:login)
 end
 
-
+# Display an error message
+#
 get('/error') do
   @login_attempts = $login_attempts
   flash[:notice] = "You have no more attempts left, wait a bit and try again!"
   slim(:"messages/error")
 end
  
+# Attempts login and updates the session
+#
+# @param [String] username, The username
+# @param [String] password, The password
+# @param [String] email, The email
+#
+# @see Model#get_user_info
+# @see Model#authenticate_password
 post('/login') do
   username = params[:username]
   password = params[:password]
@@ -71,11 +84,13 @@ post('/login') do
   end
 end
 
-
-
-
-
-
+# Registers new user and redirects to '/showlogin'
+#
+# @param [String] username, The username
+# @param [String] password, The password
+# @param [String] email, The email
+# 
+# @see Model#register_user
 post("/users") do
   username = params[:username]
   password = params[:password]
@@ -92,13 +107,18 @@ post("/users") do
   end
 end
 
-
-
+# Dispaly form for writing posts
+#
 get('/posts/new') do
   slim(:"posts/new")
 end
 
-
+# Creates post and redirects to '/posts/'
+#
+# @param [String] title, The title of the post
+# @param [String] content, The content of the post
+# 
+# @see Model#create_post
 post('/posts') do
   title = params[:title]
   content = params[:content]
@@ -107,14 +127,19 @@ post('/posts') do
   redirect('/posts/')
 end
 
-
+# Display all posts written
+# 
+# @see Model#get_posts
 get('/posts/') do
   results = get_posts()
   slim(:"posts/index", locals: { results: results })
 end
 
-
-
+# Deletes existing post and redirects to '/posts/new'
+#
+# @param [Integer] :id, The ID of the post
+#
+# @see Model#delete_post
 post('/posts/:id/delete') do
   id = params[:id].to_i
   user_id = session[:id]
@@ -126,7 +151,13 @@ post('/posts/:id/delete') do
   end
 end
 
-
+# Updates a existing post and redirects to '/posts/'
+# 
+# @param [Integer] :id, The ID of the post
+# @param [String] title, The title of the post
+# @param [String] content, The content of the post
+# 
+# @see Model#update_post
 post('/posts/:id/update') do
   id = params[:id].to_i
   title = params[:title]
@@ -136,6 +167,11 @@ post('/posts/:id/update') do
   redirect('/posts/')
 end
 
+# Displays a form for editing a existing post
+#
+# @param [Integer] :id, The ID of the post
+#
+# @see Model#get_pos_for_edit
 get('/posts/:id/edit') do
   id = params[:id].to_i
   user_id = session[:id]
@@ -149,7 +185,11 @@ get('/posts/:id/edit') do
   end
 end
 
-
+# Updates the number of likes for a post and redirects to '/posts/'
+# 
+# @param [Integer] :id, The ID of the post
+#
+# @see Model#like_post
 post('/posts/:id/like') do
   id = params[:id].to_i
   user_id = session[:id]
@@ -158,6 +198,11 @@ post('/posts/:id/like') do
   redirect('/posts/')
 end
 
+# Updates the number of likes for a post and redirects to '/posts/'
+#
+# @param [Integer] :id, The ID of the post
+#
+# @see Model#unlike_post
 post('/posts/:id/unlike') do
   id = params[:id].to_i
   user_id = session[:id]
